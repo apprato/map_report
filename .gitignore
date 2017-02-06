@@ -2,5 +2,4 @@
 settings-production.json
 npm-debug.log
 .idea
-.meteor
 node_modules
