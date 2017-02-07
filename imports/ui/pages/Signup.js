@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { Link } from 'react-router';
 import { Row, Col, FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
 import handleSignup from '../../modules/signup';
@@ -66,7 +67,7 @@ export default class Signup extends React.Component {
               </FormGroup>
               <Button type="submit" bsStyle="success">Sign Up</Button>
             </form>
-            <p>Already have an account? <Link to="/login">Log In</Link>.</p>
+            <p>Already have an account? <Link to={'login'}>Log In</Link>.</p>
           </Col>
         </Row>
       </div>

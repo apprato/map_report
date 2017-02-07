@@ -35,7 +35,7 @@ export default class Login extends React.Component {
               <FormGroup>
                 <ControlLabel>
                   <span className="pull-left">Password</span>
-                  <Link className="pull-right" to="/recover-password">Forgot Password?</Link>
+                  <Link className="pull-right" to={'recover-password'}>Forgot Password?</Link>
                 </ControlLabel>
                 <FormControl
                   type="password"

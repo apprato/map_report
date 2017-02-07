@@ -20,15 +20,15 @@ const getUserData = () => ({
 
 const signup = () => {
   const user = getUserData();
+  Meteor.call('newUser', user, (err, res) => {
+      if (err) {
+        Bert.alert(error.reason, 'danger');
+      } else {
+        browserHistory.push('/');
+        Bert.alert('Welcome!', 'success');
+      }
+  })
 
-  Accounts.createUser(user, (error) => {
-    if (error) {
-      Bert.alert(error.reason, 'danger');
-    } else {
-      browserHistory.push('/');
-      Bert.alert('Welcome!', 'success');
-    }
-  });
 };
 
 const validate = () => {

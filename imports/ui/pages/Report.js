@@ -1,71 +1,177 @@
-import React from 'react';
-import { Row, Col, Button, Glyphicon } from 'react-bootstrap';
-import MyMap from '../components/MyMap';
-import { insertReport } from '../../api/documents/methods.js';
-var lat,lng;
-let marker;
-export default class Report extends React.Component {
+import React, {
+  PropTypes,
+  Component
+} from 'react';
+import {
+  createContainer
+} from 'meteor/react-meteor-data';
+import {
+  Row,
+  Col,
+  Button,
+  Glyphicon
+} from 'react-bootstrap';
+import {
+  Bert
+} from 'meteor/themeteorchef:bert';
+import {
+  Report
+} from '/imports/api/collection/report.js';
+
+var lat, lng, self;
+let marker = {};
+var reportVal = [];
+var buttonPadding = {
+  marginBottom: '10px'
+};
+
+export class ReportClass extends Component {
+  constructor(props) {
+    super(props);
+    self = this;
+    this.state = {
+      currentLat: null,
+      currentLng: null
+    }
+  }
   componentDidMount() {
 
-   var mapProp= {
-      center:new google.maps.LatLng(51.508742,-0.120850),
-      zoom:5,
-   }
-   var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
-   google.maps.event.addListener(map, "click", function (event) {
-     lat = event.latLng.lat();
-     lng = event.latLng.lng();
-     if(!marker){
+  }
 
-            marker = new google.maps.Marker({
-               position: event.latLng,
-               map: map,
-               draggable: true,
-               animation: google.maps.Animation.DROP,
-           });
-           let infoWindow = new google.maps.InfoWindow({
-                     content: 'hello'
-           });
-           marker.addListener('click', function() {
-             infoWindow.open(map, marker);
-           });
-           marker.addListener('dragend', function(event) {
-
-           });
-         }
-
-   });
-   }
-   _handleSubmit(e) {
-      e.preventDefault();
-      let reportValue={};
-      if(lat && lng){
-       reportValue.lat = lat;
-       reportValue.lng = lng;
-       insertReport.call(reportValue,(error) =>{
-         if(error){
-           console.log("error", error);
-         }else{
-              console.log("result",result);
-         }
-
-       });
-      }
-
+  componentWillReceiveProps(nextProps) {
+    console.log('nextProps', nextProps);
+    if (this.state.currentLat == null && this.state.currentLng == null) {
+      this.setState({
+        currentLat: nextProps.location.lat,
+        currentLng: nextProps.location.lng
+      })
     }
+  }
+
+  _handleSubmit(e) {
+    e.preventDefault();
+    let reportValue = {};
+    if (Object.keys(marker).length != 0 && lat && lng) {
+      reportValue.lat = lat;
+      reportValue.lng = lng;
+      Meteor.call("insertReport", reportValue, (err, res) => {
+        if (err) {
+          Bert.alert(err.reason, 'danger');
+        } else {
+          lat = null;
+          lng = null;
+          marker = {};
+          Bert.alert('Reported successfully!', 'success');
+        }
+      });
+    } else {
+      Bert.alert('Please mark your location on Map first', 'danger');
+    }
+
+  }
+
+  reportButton(){
+    debugger;
+    if(Meteor.user() && Meteor.user().roles && Meteor.user().roles.indexOf('admin') > -1){
+      return null;
+    }else{
+      return (<Button bsStyle = "primary"style = {buttonPadding} onClick = {(e) => this._handleSubmit(e)} > Report Location </Button>);
+    }
+  }
   render() {
+    const {
+      reportDataStatus
+    } = this.props;
+
     var mapPreview = {
       height: '400px',
       width: '100%'
-      };
-      var buttonPadding={
-        marginBottom:'10px'
-      };
-  return (
-    <div>
-     <center><Button bsStyle="primary" style={buttonPadding}  onClick={(e) => this._handleSubmit(e)}>Report Location</Button></center>
-    <div id="googleMap" style={mapPreview}></div>
-    </div>
-  );
+    };
+
+    if (this.state.currentLat && this.state.currentLng) {
+      var mapProp = {
+        center: new google.maps.LatLng(this.state.currentLat, this.state.currentLng),
+        zoom: 5,
+      }
+      var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+      google.maps.event.addListener(map, "click", function(event) {
+        lat = event.latLng.lat();
+        lng = event.latLng.lng();
+        debugger;
+        if (Object.keys(marker).length == 0 && Meteor.user().roles == undefined) {
+          marker = new google.maps.Marker({
+            position: event.latLng,
+            map: map,
+            draggable: true,
+            animation: google.maps.Animation.DROP,
+          });
+          let infoWindow = new google.maps.InfoWindow({
+            content: 'hello'
+          });
+          marker.addListener('click', function() {
+            infoWindow.open(map, marker);
+          });
+          marker.addListener('dragend', function(event) {
+            lat = event.latLng.lat();
+            lng = event.latLng.lng();
+          });
+        }
+
+      });
+      if (reportDataStatus) {
+        var reportJson = {};
+        var userColorMap = {};
+        this.props.reportData.forEach((d, i) => {
+          var markerColor = '';
+          if (!userColorMap[d.userId]) {
+            userColorMap[d.userId] = getRandomColor().replace('#', '');
+          }
+
+          var userMarker = new google.maps.Marker({
+            position: new google.maps.LatLng(d.lat, d.lng),
+            map: map,
+            icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld=' + (i + 1) + '|' + userColorMap[d.userId] + '|000000',
+            animation: google.maps.Animation.DROP,
+          });
+          userMarker.markerID = d._id;
+
+          google.maps.event.addListener(userMarker, 'rightclick', function(a, b, c) {
+            var confirmDelete = confirm("Are you sure Delete This Loaction");
+              if (confirmDelete == true) {
+                Meteor.call("removeReport", this.markerID, (err, res) => {
+                  if (err) {
+                    Bert.alert(err.reason, 'danger');
+                  } else {
+                    Bert.alert('Reported Location Removed successfully!', 'success');
+                  }
+                });
+              }
+
+          });
+        });
+      }
+    }
+
+    return (
+     <div>
+      <center> {this.reportButton()} </center>
+      <div id = "googleMap"  style = { mapPreview } > </div>
+     </div>
+    );
   }
 }
+
+
+ReportClass.propTypes = {
+
+};
+
+export default createContainer(() => {
+  let handle = Meteor.subscribe('ReportPublish');
+  return {
+    location: Geolocation.latLng(),
+    reportDataStatus: handle.ready(),
+    reportData: Report.find({}).fetch()
+  };
+
+}, ReportClass);
