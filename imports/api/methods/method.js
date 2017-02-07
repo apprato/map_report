@@ -20,8 +20,10 @@ Meteor.methods({
     return Report.insert({
       lat: value.lat,
       lng: value.lng,
+      description: value.description,
       userName: currentUser.profile.name.first + ' ' + currentUser.profile.name.last,
-      userId: this.userId
+      userId: this.userId,
+
     });
   },
   'removeReport' (id) {

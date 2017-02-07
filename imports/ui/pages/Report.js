@@ -2,6 +2,7 @@ import React, {
   PropTypes,
   Component
 } from 'react';
+import ReactDOM from 'react-dom';
 import {
   createContainer
 } from 'meteor/react-meteor-data';
@@ -9,7 +10,7 @@ import {
   Row,
   Col,
   Button,
-  Glyphicon
+  Glyphicon,FormGroup, ControlLabel, FormControl
 } from 'react-bootstrap';
 import {
   Bert
@@ -53,6 +54,7 @@ export class ReportClass extends Component {
     if (Object.keys(marker).length != 0 && lat && lng) {
       reportValue.lat = lat;
       reportValue.lng = lng;
+      reportValue.description = ReactDOM.findDOMNode(this.refs.description).value;
       Meteor.call("insertReport", reportValue, (err, res) => {
         if (err) {
           Bert.alert(err.reason, 'danger');
@@ -73,7 +75,23 @@ export class ReportClass extends Component {
     if(Meteor.user() && Meteor.user().roles && Meteor.user().roles.indexOf('admin') > -1){
       return null;
     }else{
-      return (<Button bsStyle = "primary"style = {buttonPadding} onClick = {(e) => this._handleSubmit(e)} > Report Location </Button>);
+      return (
+        <div>
+        <Button bsStyle = "primary"style = {buttonPadding} onClick = {(e) => this._handleSubmit(e)} > Report Location </Button>
+        <Row>
+          <Col md={ 12 } >
+          <FormGroup>
+            <FormControl
+              type="text"
+              ref="description"
+              name="description"
+              placeholder="Enter Description"
+            />
+          </FormGroup>
+        </Col>
+        </Row>
+        </div>
+      );
     }
   }
   render() {
@@ -125,7 +143,7 @@ export class ReportClass extends Component {
             animation: google.maps.Animation.DROP,
           });
           userMarker.markerID = d._id;
-          userMarker.userName = d.userName;
+          userMarker.description = d.description;
           google.maps.event.addListener(userMarker, 'rightclick', function(a, b, c) {
             var confirmDelete = confirm("Are you sure Delete This Loaction");
               if (confirmDelete == true) {
@@ -141,7 +159,7 @@ export class ReportClass extends Component {
 
           google.maps.event.addListener(userMarker,'click', function(a,b) {
               let userInfoWindow = new google.maps.InfoWindow({
-                content: this.userName
+                content: this.description
               });
               userInfoWindow.open(map, userMarker);
             });

@@ -15,6 +15,9 @@ let schema = new SimpleSchema({
   userId: {
     type: String,
   },
+  description: {
+    type: String,
+  },
   createdAt: {
         type: Date,
         autoValue: function() {
