@@ -62,6 +62,7 @@ export class ReportClass extends Component {
           lat = null;
           lng = null;
           marker = {};
+          ReactDOM.findDOMNode(this.refs.description).value = '';
           Bert.alert('Reported successfully!', 'success');
         }
       });
