@@ -39,7 +39,6 @@ export class ReportClass extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log('nextProps', nextProps);
     if (this.state.currentLat == null && this.state.currentLng == null) {
       this.setState({
         currentLat: nextProps.location.lat,
@@ -71,7 +70,6 @@ export class ReportClass extends Component {
   }
 
   reportButton(){
-    debugger;
     if(Meteor.user() && Meteor.user().roles && Meteor.user().roles.indexOf('admin') > -1){
       return null;
     }else{
@@ -97,19 +95,12 @@ export class ReportClass extends Component {
       google.maps.event.addListener(map, "click", function(event) {
         lat = event.latLng.lat();
         lng = event.latLng.lng();
-        debugger;
         if (Object.keys(marker).length == 0 && Meteor.user().roles == undefined) {
           marker = new google.maps.Marker({
             position: event.latLng,
             map: map,
             draggable: true,
             animation: google.maps.Animation.DROP,
-          });
-          let infoWindow = new google.maps.InfoWindow({
-            content: 'hello'
-          });
-          marker.addListener('click', function() {
-            infoWindow.open(map, marker);
           });
           marker.addListener('dragend', function(event) {
             lat = event.latLng.lat();
@@ -134,7 +125,7 @@ export class ReportClass extends Component {
             animation: google.maps.Animation.DROP,
           });
           userMarker.markerID = d._id;
-
+          userMarker.userName = d.userName;
           google.maps.event.addListener(userMarker, 'rightclick', function(a, b, c) {
             var confirmDelete = confirm("Are you sure Delete This Loaction");
               if (confirmDelete == true) {
@@ -146,8 +137,16 @@ export class ReportClass extends Component {
                   }
                 });
               }
-
           });
+
+          google.maps.event.addListener(userMarker,'click', function(a,b) {
+              let userInfoWindow = new google.maps.InfoWindow({
+                content: this.userName
+              });
+              userInfoWindow.open(map, userMarker);
+            });
+
+
         });
       }
     }
