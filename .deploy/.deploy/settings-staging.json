@@ -1,0 +1,13 @@
+{
+  "mailUrl": "smtp://apikey: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@smtp.sendgrid.net:587",
+  "sendgrid": {
+    "apiKey": "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"
+  },
+  "quoteRequestEmail": {
+    "subject": "A new quote request from AgQuote",
+    "from": {
+      "email": "info@agquote.io",
+      "name": "AgQuote"
+    }
+  }
+}
