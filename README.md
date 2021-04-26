@@ -1,14 +1,19 @@
-# map_report
+# Map Report
+
+This is full-stack javascript web application written with React, Mongo, Node.js.  As a map reporting tool it can be used to to find missing items let by using, saving the location via dropping a pin as well as leave commits on a google map.
+* React
+* Mongo
+* Node.js
+* Meteor
 
 ## Development
 meteor npm install
 meteor npm start
 
-
 ## Staging
-TBC
+Instructions to deploy to a staging environment
 
-### Setup EC2 deploy node
+### Setup EC2 deploy node on AWS
 Create Ubuntu EC2
 git clone ssh://git@bitbucket.org/magescale/map_report.git
 cd map_report
@@ -21,14 +26,3 @@ cp map_report/install.sh .
 sh install.sh
 cd map_report
 npm install
-
-### Deploy from EC2 deploy node to staging
-
-mup setup
-mup deploy
-mup start
-
-
-## Production
-....
-
