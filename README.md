@@ -15,6 +15,7 @@ Instructions to deploy to a staging environment
 
 ### Setup EC2 deploy node on AWS
 Create Ubuntu EC2
+```
 git clone ssh://git@bitbucket.org/magescale/map_report.git
 cd map_report
 git fetch && git checkout master
@@ -26,3 +27,4 @@ cp map_report/install.sh .
 sh install.sh
 cd map_report
 npm install
+```
